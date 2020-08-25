@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/influxdata/telegraf"
@@ -45,6 +46,12 @@ var sampleConfig = `
 
 func (_ *CPUStats) SampleConfig() string {
 	return sampleConfig
+}
+
+func float64Format(metric float64) float64 {
+	floatStr := fmt.Sprintf("%."+strconv.Itoa(18)+"f", metric)
+	newFloat, _ := strconv.ParseFloat(floatStr, 64)
+	return newFloat
 }
 
 func (s *CPUStats) Gather(acc telegraf.Accumulator) error {
@@ -107,15 +114,15 @@ func (s *CPUStats) Gather(acc telegraf.Accumulator) error {
 
 		fieldsG := map[string]interface{}{
 			"usage_user":       100 * (cts.User - lastCts.User - (cts.Guest - lastCts.Guest)) / totalDelta,
-			"usage_system":     100 * (cts.System - lastCts.System) / totalDelta,
-			"usage_idle":       100 * (cts.Idle - lastCts.Idle) / totalDelta,
-			"usage_nice":       100 * (cts.Nice - lastCts.Nice - (cts.GuestNice - lastCts.GuestNice)) / totalDelta,
-			"usage_iowait":     100 * (cts.Iowait - lastCts.Iowait) / totalDelta,
-			"usage_irq":        100 * (cts.Irq - lastCts.Irq) / totalDelta,
-			"usage_softirq":    100 * (cts.Softirq - lastCts.Softirq) / totalDelta,
-			"usage_steal":      100 * (cts.Steal - lastCts.Steal) / totalDelta,
-			"usage_guest":      100 * (cts.Guest - lastCts.Guest) / totalDelta,
-			"usage_guest_nice": 100 * (cts.GuestNice - lastCts.GuestNice) / totalDelta,
+			"usage_system":     float64Format(100 * (cts.System - lastCts.System) / totalDelta),
+			"usage_idle":       float64Format(100 * (cts.Idle - lastCts.Idle) / totalDelta),
+			"usage_nice":       float64Format(100 * (cts.Nice - lastCts.Nice - (cts.GuestNice - lastCts.GuestNice)) / totalDelta),
+			"usage_iowait":     float64Format(100 * (cts.Iowait - lastCts.Iowait) / totalDelta),
+			"usage_irq":        float64Format(100 * (cts.Irq - lastCts.Irq) / totalDelta),
+			"usage_softirq":    float64Format(100 * (cts.Softirq - lastCts.Softirq) / totalDelta),
+			"usage_steal":      float64Format(100 * (cts.Steal - lastCts.Steal) / totalDelta),
+			"usage_guest":      float64Format(100 * (cts.Guest - lastCts.Guest) / totalDelta),
+			"usage_guest_nice": float64Format(100 * (cts.GuestNice - lastCts.GuestNice) / totalDelta),
 		}
 		if s.ReportActive {
 			fieldsG["usage_active"] = 100 * (active - lastActive) / totalDelta
@@ -134,12 +141,12 @@ func (s *CPUStats) Gather(acc telegraf.Accumulator) error {
 func totalCpuTime(t cpu.TimesStat) float64 {
 	total := t.User + t.System + t.Nice + t.Iowait + t.Irq + t.Softirq + t.Steal +
 		t.Idle
-	return total
+	return float64Format(total)
 }
 
 func activeCpuTime(t cpu.TimesStat) float64 {
 	active := totalCpuTime(t) - t.Idle
-	return active
+	return float64Format(active)
 }
 
 func init() {
