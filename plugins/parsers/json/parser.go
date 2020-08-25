@@ -113,6 +113,9 @@ func (p *Parser) parseObject(data map[string]interface{}, timestamp time.Time) (
 	}
 
 	//if time key is specified, set timestamp to it
+	var cstSh, _ = time.LoadLocation("Asia/Shanghai")
+	nTime := time.Now().In(cstSh)
+
 	if p.timeKey != "" {
 		if p.timeFormat == "" {
 			err := fmt.Errorf("use of 'json_time_key' requires 'json_time_format'")
@@ -138,7 +141,7 @@ func (p *Parser) parseObject(data map[string]interface{}, timestamp time.Time) (
 	}
 
 	tags, nFields := p.switchFieldToTag(tags, f.Fields)
-	metric, err := metric.New(name, tags, nFields, timestamp)
+	metric, err := metric.New(name, tags, nFields, nTime)
 	if err != nil {
 		return nil, err
 	}
