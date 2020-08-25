@@ -2,11 +2,11 @@ package disk
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	"github.com/influxdata/telegraf/plugins/inputs/system"
+	"strconv"
+	"strings"
 )
 
 type DiskStats struct {
@@ -34,6 +34,18 @@ var diskSampleConfig = `
 
 func (_ *DiskStats) SampleConfig() string {
 	return diskSampleConfig
+}
+
+func float64Format(metric float64) float64 {
+	floatStr := fmt.Sprintf("%."+strconv.Itoa(18)+"f", metric)
+	newFloat, _ := strconv.ParseFloat(floatStr, 64)
+	return newFloat
+}
+
+func uint64Format(metric uint64) float64 {
+	metricStr := strconv.FormatUint(metric, 10)
+	metricFloat, _ := strconv.ParseFloat(metricStr,64)
+	return metricFloat
 }
 
 func (s *DiskStats) Gather(acc telegraf.Accumulator) error {
@@ -66,13 +78,13 @@ func (s *DiskStats) Gather(acc telegraf.Accumulator) error {
 		}
 
 		fields := map[string]interface{}{
-			"total":        du.Total,
-			"free":         du.Free,
-			"used":         du.Used,
-			"used_percent": used_percent,
-			"inodes_total": du.InodesTotal,
-			"inodes_free":  du.InodesFree,
-			"inodes_used":  du.InodesUsed,
+			"total":        uint64Format(du.Total),
+			"free":         uint64Format(du.Free),
+			"used":         uint64Format(du.Used),
+			"used_percent": float64Format(used_percent),
+			"inodes_total": uint64Format(du.InodesTotal),
+			"inodes_free":  uint64Format(du.InodesFree),
+			"inodes_used":  uint64Format(du.InodesUsed),
 		}
 		acc.AddGauge("disk", fields, tags)
 	}
