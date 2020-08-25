@@ -657,11 +657,11 @@ func (l *LogParserPlugin) multiline_parser() {
 		if err == nil {
 			if m != nil {
 				if len(m.Fields()) == 0 {
-					fileLine[entry.path].last += entry.line + "\n"
+					fileLine[entry.path].last += strings.Trim(entry.line, "\n") + "/0"
 					fileLine[entry.path].curtime = time.Now()
 				} else {
 					if fileLine[entry.path].last == "" {
-						fileLine[entry.path].last += entry.line + "\n"
+						fileLine[entry.path].last += strings.Trim(entry.line, "\n") + "/0"
 						fileLine[entry.path].curtime = time.Now()
 					} else {
 						tags := m.Tags()
@@ -672,7 +672,7 @@ func (l *LogParserPlugin) multiline_parser() {
 						tags["instance"] = (instance[0])
 						m.AddField("msg", fileLine[entry.path].last)
 						l.acc.AddFields(m.Name(), m.Fields(), tags, m.Time())
-						fileLine[entry.path].last = entry.line + "\n"
+						fileLine[entry.path].last = strings.Trim(entry.line, "\n") + "/0"
 						fileLine[entry.path].curtime = time.Now()
 						// 发送完以后再记录位置，防止程序意外停止造成数据丢失
 						tailer := l.tailers[entry.path]
@@ -698,7 +698,7 @@ func (l *LogParserPlugin) multiline_parser() {
 					}
 				}
 			} else {
-				fileLine[entry.path].last += entry.line + "\n"
+				fileLine[entry.path].last += strings.Trim(entry.line, "\n") + "/0"
 				fileLine[entry.path].curtime = time.Now()
 			}
 
