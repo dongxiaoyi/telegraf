@@ -3,6 +3,7 @@ package json
 import (
 	"encoding/json"
 	"math"
+	"runtime"
 	"time"
 
 	"github.com/influxdata/telegraf"
@@ -71,7 +72,18 @@ func (s *serializer) createObject(metric telegraf.Metric) map[string]interface{}
 	m["fields"] = fields
 
 	m["name"] = metric.Name()
-	m["timestamp"] = metric.Time().UnixNano() / int64(s.TimestampUnits)
+
+	// 统一win与linux下的时间精度
+	var timestamp int64
+	sysType := runtime.GOOS
+	if sysType == "linux" {
+		timestamp = metric.Time().UnixNano() / int64(s.TimestampUnits)
+	}
+
+	if sysType == "windows" {
+		timestamp = metric.Time().UnixNano() / 1000000
+	}
+	m["timestamp"] = timestamp
 	return m
 }
 
