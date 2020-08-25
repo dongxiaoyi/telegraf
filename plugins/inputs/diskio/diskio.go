@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"strconv"
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/filter"
@@ -85,6 +86,12 @@ func (s *DiskIO) init() error {
 	return nil
 }
 
+func uint64Format(metric uint64) float64 {
+	metricStr := strconv.FormatUint(metric, 10)
+	metricFloat, _ := strconv.ParseFloat(metricStr,64)
+	return metricFloat
+}
+
 func (s *DiskIO) Gather(acc telegraf.Accumulator) error {
 	if !s.initialized {
 		err := s.init()
@@ -139,17 +146,15 @@ func (s *DiskIO) Gather(acc telegraf.Accumulator) error {
 		}
 
 		fields := map[string]interface{}{
-			"reads":            io.ReadCount,
-			"writes":           io.WriteCount,
-			"read_bytes":       io.ReadBytes,
-			"write_bytes":      io.WriteBytes,
-			"read_time":        io.ReadTime,
-			"write_time":       io.WriteTime,
-			"io_time":          io.IoTime,
-			"weighted_io_time": io.WeightedIO,
-			"iops_in_progress": io.IopsInProgress,
-			"merged_reads":     io.MergedReadCount,
-			"merged_writes":    io.MergedWriteCount,
+			"reads":            uint64Format(io.ReadCount),
+			"writes":           uint64Format(io.WriteCount),
+			"read_bytes":       uint64Format(io.ReadBytes),
+			"write_bytes":      uint64Format(io.WriteBytes),
+			"read_time":        uint64Format(io.ReadTime),
+			"write_time":       uint64Format(io.WriteTime),
+			"io_time":          uint64Format(io.IoTime),
+			"weighted_io_time": uint64Format(io.WeightedIO),
+			"iops_in_progress": uint64Format(io.IopsInProgress),
 		}
 		acc.AddCounter("diskio", fields, tags)
 	}
