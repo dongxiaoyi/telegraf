@@ -179,4 +179,8 @@ import (
 	_ "github.com/influxdata/telegraf/plugins/inputs/zfs"
 	_ "github.com/influxdata/telegraf/plugins/inputs/zipkin"
 	_ "github.com/influxdata/telegraf/plugins/inputs/zookeeper"
+	// 编译Windows版本时需要打开注释，但是得注释multiline_logparser
+	// _ "github.com/influxdata/telegraf/plugins/inputs/multiline_logparser_win"
+	// 编译Linux版本时需要打开注释，但是得注释multiline_logparser_win
+	_ "github.com/influxdata/telegraf/plugins/inputs/multiline_logparser"
 )
