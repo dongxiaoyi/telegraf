@@ -3,6 +3,7 @@ package net
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/influxdata/telegraf"
@@ -40,6 +41,12 @@ var netSampleConfig = `
 
 func (_ *NetIOStats) SampleConfig() string {
 	return netSampleConfig
+}
+
+func uint64Format(metric uint64) float64 {
+	metricStr := strconv.FormatUint(metric, 10)
+	metricFloat, _ := strconv.ParseFloat(metricStr,64)
+	return metricFloat
 }
 
 func (s *NetIOStats) Gather(acc telegraf.Accumulator) error {
@@ -94,14 +101,14 @@ func (s *NetIOStats) Gather(acc telegraf.Accumulator) error {
 		}
 
 		fields := map[string]interface{}{
-			"bytes_sent":   io.BytesSent,
-			"bytes_recv":   io.BytesRecv,
-			"packets_sent": io.PacketsSent,
-			"packets_recv": io.PacketsRecv,
-			"err_in":       io.Errin,
-			"err_out":      io.Errout,
-			"drop_in":      io.Dropin,
-			"drop_out":     io.Dropout,
+			"bytes_sent":   uint64Format(io.BytesSent),
+			"bytes_recv":   uint64Format(io.BytesRecv),
+			"packets_sent": uint64Format(io.PacketsSent),
+			"packets_recv": uint64Format(io.PacketsRecv),
+			"err_in":       uint64Format(io.Errin),
+			"err_out":      uint64Format(io.Errout),
+			"drop_in":      uint64Format(io.Dropin),
+			"drop_out":     uint64Format(io.Dropout),
 		}
 		acc.AddCounter("net", fields, tags)
 	}
@@ -115,7 +122,7 @@ func (s *NetIOStats) Gather(acc telegraf.Accumulator) error {
 			for stat, value := range proto.Stats {
 				name := fmt.Sprintf("%s_%s", strings.ToLower(proto.Protocol),
 					strings.ToLower(stat))
-				fields[name] = value
+				fields[name] = float64(value)
 			}
 		}
 		tags := map[string]string{
