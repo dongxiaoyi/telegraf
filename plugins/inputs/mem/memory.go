@@ -2,6 +2,7 @@ package mem
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
@@ -18,6 +19,12 @@ func (_ *MemStats) Description() string {
 
 func (_ *MemStats) SampleConfig() string { return "" }
 
+func uint64Format(metric uint64) float64 {
+	metricStr := strconv.FormatUint(metric, 10)
+	metricFloat, _ := strconv.ParseFloat(metricStr,64)
+	return metricFloat
+}
+
 func (s *MemStats) Gather(acc telegraf.Accumulator) error {
 	vm, err := s.ps.VMStat()
 	if err != nil {
@@ -25,41 +32,39 @@ func (s *MemStats) Gather(acc telegraf.Accumulator) error {
 	}
 
 	fields := map[string]interface{}{
-		"total":             vm.Total,
-		"available":         vm.Available,
-		"used":              vm.Used,
-		"free":              vm.Free,
-		"cached":            vm.Cached,
-		"buffered":          vm.Buffers,
-		"active":            vm.Active,
-		"inactive":          vm.Inactive,
-		"wired":             vm.Wired,
-		"slab":              vm.Slab,
+		"total":             uint64Format(vm.Total),
+		"available":         uint64Format(vm.Available),
+		"used":              uint64Format(vm.Used),
+		"free":              uint64Format(vm.Free),
+		"cached":            uint64Format(vm.Cached),
+		"buffered":          uint64Format(vm.Buffers),
+		"active":            uint64Format(vm.Active),
+		"inactive":          uint64Format(vm.Inactive),
+		"wired":             uint64Format(vm.Wired),
+		"slab":              uint64Format(vm.Slab),
 		"used_percent":      100 * float64(vm.Used) / float64(vm.Total),
 		"available_percent": 100 * float64(vm.Available) / float64(vm.Total),
-		"commit_limit":      vm.CommitLimit,
-		"committed_as":      vm.CommittedAS,
-		"dirty":             vm.Dirty,
-		"high_free":         vm.HighFree,
-		"high_total":        vm.HighTotal,
-		"huge_page_size":    vm.HugePageSize,
-		"huge_pages_free":   vm.HugePagesFree,
-		"huge_pages_total":  vm.HugePagesTotal,
-		"low_free":          vm.LowFree,
-		"low_total":         vm.LowTotal,
-		"mapped":            vm.Mapped,
-		"page_tables":       vm.PageTables,
-		"shared":            vm.Shared,
-		"sreclaimable":      vm.SReclaimable,
-		"sunreclaim":        vm.SUnreclaim,
-		"swap_cached":       vm.SwapCached,
-		"swap_free":         vm.SwapFree,
-		"swap_total":        vm.SwapTotal,
-		"vmalloc_chunk":     vm.VMallocChunk,
-		"vmalloc_total":     vm.VMallocTotal,
-		"vmalloc_used":      vm.VMallocUsed,
-		"write_back":        vm.Writeback,
-		"write_back_tmp":    vm.WritebackTmp,
+		"commit_limit":      uint64Format(vm.CommitLimit),
+		"committed_as":      uint64Format(vm.CommittedAS),
+		"dirty":             uint64Format(vm.Dirty),
+		"high_free":         uint64Format(vm.HighFree),
+		"high_total":        uint64Format(vm.HighTotal),
+		"huge_page_size":    uint64Format(vm.HugePageSize),
+		"huge_pages_free":   uint64Format(vm.HugePagesFree),
+		"huge_pages_total":  uint64Format(vm.HugePagesTotal),
+		"low_free":          uint64Format(vm.LowFree),
+		"low_total":         uint64Format(vm.LowTotal),
+		"mapped":            uint64Format(vm.Mapped),
+		"page_tables":       uint64Format(vm.PageTables),
+		"shared":            uint64Format(vm.Shared),
+		"swap_cached":       uint64Format(vm.SwapCached),
+		"swap_free":         uint64Format(vm.SwapFree),
+		"swap_total":        uint64Format(vm.SwapTotal),
+		"vmalloc_chunk":     uint64Format(vm.VMallocChunk),
+		"vmalloc_total":     uint64Format(vm.VMallocTotal),
+		"vmalloc_used":      uint64Format(vm.VMallocUsed),
+		"write_back":        uint64Format(vm.Writeback),
+		"write_back_tmp":    uint64Format(vm.WritebackTmp),
 	}
 	acc.AddGauge("mem", fields, nil)
 
